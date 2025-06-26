@@ -115,6 +115,11 @@ jobs:
             type=ref,event=branch
             latest
 
+      - name: Get Primary Tag for Trivy Scan
+        id: primary_tag
+        run: |
+          echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)" >> $GITHUB_OUTPUT
+
       - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -127,7 +132,7 @@ jobs:
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.meta.outputs.tags }}
+          image-ref: ${{ steps.primary_tag.outputs.tag }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
